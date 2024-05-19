@@ -54,6 +54,7 @@ string HandleParsing(string[] request) {
             reply = $"${request[4].Length}\r\n{request[4]}\r\n";
             break;
         case "set":         
+            Console.WriteLine($"Key: {request[4]}, Value: {request[6]}");
                 if(request[10] != null&& request[8] is not null){
                     if( request[10].Length > 0 && request[8].ToLower() == "px"){
 
@@ -64,6 +65,8 @@ string HandleParsing(string[] request) {
                 break;
                  }
                 }
+                Console.WriteLine($"Keysss: {request[4]}, Value: {request[6]},");
+
              dict[request[4]] = new DataType { value = request[6], expiryTime = DateTime.Now.AddMilliseconds(100000) };
                 StartExpiryTask(request[4], 100000);
 
