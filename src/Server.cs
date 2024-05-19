@@ -27,7 +27,7 @@ using System.Threading.Tasks;
     
     // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
-TcpListener server = new TcpListener(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : port);
+TcpListener server = new TcpListener(IPAddress.Any,  port);
 
 server.Start(); // wait for client
 int clientId = 1;
