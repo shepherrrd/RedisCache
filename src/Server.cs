@@ -4,11 +4,29 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-// You can use print statements as follows for debugging, they'll be visible when running tests.
-Console.WriteLine("Logs from your program will appear here!");
+
 
 // Uncomment this block to pass the first stage
+ class Server {
+     async Task Main(string[] args)
+    {
+        int port = 6379; // Default port
 
+        // Parse command-line arguments to get the port number
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "--port" && i + 1 < args.Length && int.TryParse(args[i + 1], out int parsedPort))
+            {
+                port = parsedPort;
+                break;
+            }
+        }
+
+        // Start the server with the specified port
+      
+    
+    // You can use print statements as follows for debugging, they'll be visible when running tests.
+Console.WriteLine("Logs from your program will appear here!");
 TcpListener server = new TcpListener(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 6379);
 
 server.Start(); // wait for client
@@ -30,7 +48,7 @@ async void HandleSocketConnection(Socket clientSocket, int clientId) {
                 Console.WriteLine($"Received Message: {receivedMessage}, clientId: {clientId}");
                 var data = receivedMessage.Split("\r\n");
                 if (data.Length > 0) {
-                    string responseMessage = HandleParsing(data);
+                    string responseMessage = HandleParsing(data,dict);
                     await SendResponse(clientSocket, responseMessage);
                 }
             }
@@ -41,8 +59,10 @@ async void HandleSocketConnection(Socket clientSocket, int clientId) {
         clientSocket.Close();
     }
 }
+    }
+ 
 
-string HandleParsing(string[] request) {
+string HandleParsing(string[] request, ConcurrentDictionary<string, DataType> dict) {
   for (int i = 0; i < request.Length; i++) {
     Console.WriteLine($"Request: {i} - {request[i]}");
     }
@@ -60,7 +80,7 @@ string HandleParsing(string[] request) {
                 if (request[10].Length > 0 && request[8].ToLower() == "px") {
                     Console.WriteLine($"Key: {request[4]}, Value: {request[6]}, Expiry: {request[10]}");
                     dict[request[4]] = new DataType { value = request[6], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[10])) };
-                    StartExpiryTask(request[4], int.Parse(request[10]));
+                    StartExpiryTask(request[4], int.Parse(request[10]), dict);
                     reply = "+OK\r\n";
                     break;
                 }
@@ -68,7 +88,7 @@ string HandleParsing(string[] request) {
                 Console.WriteLine($"Keysss: {request[4]}, Value: {request[6]},");
 
              dict[request[4]] = new DataType { value = request[6], expiryTime = DateTime.Now.AddMilliseconds(100000) };
-                StartExpiryTask(request[4], 100000);
+                StartExpiryTask(request[4], 100000, dict);
 
                 reply = "+OK\r\n";          
             break;
@@ -89,12 +109,13 @@ async Task SendResponse(Socket clientSocket, string response) {
     await clientSocket.SendAsync(responseMessage, SocketFlags.None);
 }
 
-async void StartExpiryTask(string key, int delayMilliseconds) {
+async void StartExpiryTask(string key, int delayMilliseconds, ConcurrentDictionary<string, DataType> dict) {
     await Task.Delay(delayMilliseconds);
     dict.TryRemove(key, out _);
 }
-
+ 
 public class DataType {
     public string value { get; set; } = default!;
     public DateTime expiryTime { get; set; } = default!;
 }
+ }
