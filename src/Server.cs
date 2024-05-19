@@ -61,7 +61,7 @@ while (true) {
     reply = "+OK\r\n";
     break;
    }
-   dict.Add(request[4], new DataType(){value = request[6], time = TimeSpan.FromSeconds(int.Parse(request[8]))});
+   dict.Add(request[4], new DataType(){value = request[6], time = TimeSpan.FromSeconds(100000)});
     reply = "+OK\r\n";
     break; 
     case "get":
