@@ -18,7 +18,7 @@ async Task HandleSocketAsync(Socket socket) {
     byte[] requestData = new byte[socket.ReceiveBufferSize];
     await socket.ReceiveAsync(requestData);
     var request =  Encoding.UTF8.GetString(requestData);
-    var response = Encoding.UTF8.GetBytes("PONG");
+    var response = Encoding.UTF8.GetBytes("+PONG\r\n");
     // switch (request) {
     // case "PING":
     //   response = Encoding.UTF8.GetBytes("PONG");
