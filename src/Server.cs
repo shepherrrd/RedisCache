@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 Console.WriteLine("Logs from your program will appear here!");
 
 // Use a different port to avoid conflicts
-int port = 6380; // Change to any available port number
+int port = 6379; // Change to any available port number
 TcpListener server = new TcpListener(IPAddress.Any, port);
 
 server.Start(); // wait for client
