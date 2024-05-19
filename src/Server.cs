@@ -18,7 +18,7 @@ using System.Threading.Tasks;
             if (args[i] == "--port" && i + 1 < args.Length && int.TryParse(args[i + 1], out int parsedPort))
             {
                 port = parsedPort;
-                break;
+                break;                
             }
         }
 
@@ -27,7 +27,7 @@ using System.Threading.Tasks;
     
     // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
-TcpListener server = new TcpListener(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 6379);
+TcpListener server = new TcpListener(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : port);
 
 server.Start(); // wait for client
 int clientId = 1;
