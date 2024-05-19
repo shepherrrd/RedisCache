@@ -42,6 +42,7 @@ async void HandleSocketConnection(Socket clientSocket, int clientId) {
 }
 
 string HandleParsing(string[] request) {
+    Console.WriteLine($"Request: {request}");
     string reply = "Nope";
     switch (request[2].ToLower()) {
         case "ping":
@@ -50,13 +51,11 @@ string HandleParsing(string[] request) {
         case "echo":
             reply = $"${request[4].Length}\r\n{request[4]}\r\n";
             break;
-        case "set":
-            
+        case "set":            
                 Console.WriteLine($"Key: {request[4]}, Value: {request[8]}, Expiry: {request[10]}");
-                dict.TryAdd(request[6],new DataType { value = request[10], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[12])) });
-                StartExpiryTask(request[6], int.Parse(request[12]));
-                reply = "+OK\r\n";
-            
+                dict[request[4]] = new DataType { value = request[8], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[10])) };
+                StartExpiryTask(request[4], int.Parse(request[10]));
+                reply = "+OK\r\n";            
             break;
         case "get":
             var key = request[4];
