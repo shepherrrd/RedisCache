@@ -53,11 +53,14 @@ string HandleParsing(string[] request) {
         case "echo":
             reply = $"${request[4].Length}\r\n{request[4]}\r\n";
             break;
-        case "set":            
+        case "set":         
+                if(request[10] != null && request[10].Length > 0 && request[8].ToLower() == "px"){
                 Console.WriteLine($"Key: {request[4]}, Value: {request[6]}, Expiry: {request[10]}");
                 dict[request[4]] = new DataType { value = request[6], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[10])) };
                 StartExpiryTask(request[4], int.Parse(request[10]));
-                reply = "+OK\r\n";            
+                reply = "+OK\r\n";  }
+             dict[request[4]] = new DataType { value = request[6], expiryTime = DateTime.Now.AddMilliseconds(100000) };
+                reply = "+OK\r\n";          
             break;
         case "get":
             var key = request[4];
