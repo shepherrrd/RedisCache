@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 Console.WriteLine("Logs from your program will appear here!");
 
 // Uncomment this block to pass the first stage
-TcpListener server = new TcpListener(IPAddress.Any, 6379);
+
+TcpListener server = new TcpListener(IPAddress.Any, args.Length > 0 ? int.Parse(args[0]) : 6379);
 
 server.Start(); // wait for client
 int clientId = 1;
