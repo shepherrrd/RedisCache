@@ -52,6 +52,7 @@ while (true) {
     reply = $"${request[4].Length}\r\n{request[4]}\r\n";
     break;
    case "set":
+   dict.Add(request[4], request[6]);
     reply = "+OK\r\n";
     break; 
     case "get":
