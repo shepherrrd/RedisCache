@@ -10,5 +10,12 @@ TcpListener server = new TcpListener(IPAddress.Any, 6379);
 
 server.Start(); // wait for client
 var socket = server.AcceptSocket(); // wait for client
-socket.Send(Encoding.UTF8.GetBytes("+PONG\r\n"));
-socket.Close();
+ var pong = Encoding.UTF8.GetBytes("+PONG\r\n");
+while (socket.Connected){
+    byte[] buffer = new byte[socket.ReceiveBufferSize];
+    await socket.ReceiveAsync(buffer);
+    var command = Encoding.UTF8.GetString(buffer);
+    if (command == "PING\r\n"){
+       await  socket.SendAsync(pong);
+    }
+}
