@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 // Uncomment this block to pass the first stage
  class Server {
-     async Task Main(string[] args)
+     static async Task Main(string[] args)
     {
         int port = 6379; // Default port
 
@@ -62,7 +62,7 @@ async void HandleSocketConnection(Socket clientSocket, int clientId) {
     }
  
 
-string HandleParsing(string[] request, ConcurrentDictionary<string, DataType> dict) {
+static string HandleParsing(string[] request, ConcurrentDictionary<string, DataType> dict) {
   for (int i = 0; i < request.Length; i++) {
     Console.WriteLine($"Request: {i} - {request[i]}");
     }
@@ -104,12 +104,12 @@ string HandleParsing(string[] request, ConcurrentDictionary<string, DataType> di
     return reply;
 }
 
-async Task SendResponse(Socket clientSocket, string response) {
+static async Task SendResponse(Socket clientSocket, string response) {
     byte[] responseMessage = Encoding.UTF8.GetBytes(response);
     await clientSocket.SendAsync(responseMessage, SocketFlags.None);
 }
 
-async void StartExpiryTask(string key, int delayMilliseconds, ConcurrentDictionary<string, DataType> dict) {
+static async void StartExpiryTask(string key, int delayMilliseconds, ConcurrentDictionary<string, DataType> dict) {
     await Task.Delay(delayMilliseconds);
     dict.TryRemove(key, out _);
 }
