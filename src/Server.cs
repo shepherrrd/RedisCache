@@ -8,14 +8,25 @@ Console.WriteLine("Logs from your program will appear here!");
 // Uncomment this block to pass the first stage
 TcpListener server = new TcpListener(IPAddress.Any, 6379);
 
-server.Start(); // wait for client
-var socket = server.AcceptSocket(); // wait for client
- var pong = Encoding.UTF8.GetBytes("+PONG\r\n");
-while (socket.Connected){
-    byte[] buffer = new byte[socket.ReceiveBufferSize];
-    await socket.ReceiveAsync(buffer);
-    var command = Encoding.UTF8.GetString(buffer);
-   
-       await  socket.SendAsync(pong);
-    
+server.Start(); // wait for client// wait for client
+ while (true) {
+  Socket socket = await server.AcceptSocketAsync(); // wait for client
+  await HandleSocketAsync(socket);
+}
+async Task HandleSocketAsync(Socket socket) {
+  while (socket.Connected) {
+    byte[] requestData = new byte[socket.ReceiveBufferSize];
+    await socket.ReceiveAsync(requestData);
+    var request =  Encoding.UTF8.GetString(requestData);
+    var response = Encoding.UTF8.GetBytes("PONG");
+    switch (request) {
+    case "PING":
+      response = Encoding.UTF8.GetBytes("PONG");
+      break;
+    default:
+      response = Encoding.UTF8.GetBytes("-ERR unknown command\r\n");
+      break;
+    }
+    await socket.SendAsync(response);
+  }
 }
