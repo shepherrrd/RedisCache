@@ -42,7 +42,7 @@ async void HandleSocketConnection(Socket clientSocket, int clientId) {
 }
 
 string HandleParsing(string[] request) {
-    Console.WriteLine($"Request: {request}");
+    Console.WriteLine($"Request: {request.ToArray().ToString()}");
     string reply = "Nope";
     switch (request[2].ToLower()) {
         case "ping":
