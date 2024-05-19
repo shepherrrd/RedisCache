@@ -19,14 +19,14 @@ async Task HandleSocketAsync(Socket socket) {
     await socket.ReceiveAsync(requestData);
     var request =  Encoding.UTF8.GetString(requestData);
     var response = Encoding.UTF8.GetBytes("PONG");
-    switch (request) {
-    case "PING":
-      response = Encoding.UTF8.GetBytes("PONG");
-      break;
-    default:
-      response = Encoding.UTF8.GetBytes("-ERR unknown command\r\n");
-      break;
-    }
+    // switch (request) {
+    // case "PING":
+    //   response = Encoding.UTF8.GetBytes("PONG");
+    //   break;
+    // default:
+    //   response = Encoding.UTF8.GetBytes("-ERR unknown command\r\n");
+    //   break;
+    // }
     await socket.SendAsync(response);
   }
 }
