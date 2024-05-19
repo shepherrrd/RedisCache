@@ -1,6 +1,8 @@
+
 using System.Collections;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -11,11 +13,13 @@ TcpListener server = new TcpListener(IPAddress.Any, 6379);
 
 server.Start(); // wait for client// wait for client
  int clientId = 1;
- var dict = new Dictionary<string, string>();
+ var dict = new Dictionary<string, DataType>();
 while (true) {
+    DeleteFromCache();
   Socket clientSocket = await server.AcceptSocketAsync(); 
   HandleSocketConnection(clientSocket, clientId++);
 }
+
  async void HandleSocketConnection(Socket clientSocket, int clientId) {
   try {
     while (true) {
@@ -29,8 +33,8 @@ while (true) {
       var data = recivedMessage.Split("\r\n");
       if(data.Length > 0){
         
-      byte[] responseMessage = Encoding.UTF8.GetBytes(HandleParsing(data));
-      await clientSocket.SendAsync(responseMessage);
+      string responseMessage = HandleParsing(data);
+       SendResponse(clientSocket, responseMessage);
       }
     }
     }
@@ -52,13 +56,13 @@ while (true) {
     reply = $"${request[4].Length}\r\n{request[4]}\r\n";
     break;
    case "set":
-   dict.Add(request[4], request[6]);
+   dict.Add(request[4], new DataType(){value = request[6], time = TimeSpan.FromSeconds(int.Parse(request[8]))});
     reply = "+OK\r\n";
     break; 
     case "get":
     var res = request[4];
     if(dict.ContainsKey(res)){
-      reply = $"${dict[res].Length}\r\n{dict[res]}\r\n";
+      reply = $"${dict[res].value.Length}\r\n{dict[res]}\r\n";
   }else{
     reply = "$-1\r\n";
   }
@@ -67,3 +71,19 @@ while (true) {
 }
     return reply;
  }
+ 
+ async void SendResponse(Socket clientSocket, string response) {
+  byte[] responseMessage = Encoding.UTF8.GetBytes(response);
+  await clientSocket.SendAsync(responseMessage);}
+   void DeleteFromCache(){
+    foreach(var key in dict.Keys){
+        var now = DateTime.Now;
+      if(dict[key].time < now.TimeOfDay){
+        dict.Remove(key);
+      }    
+  }
+  }
+public class DataType{
+  public string value {get; set;} = default!;
+  public TimeSpan time {get; set;} = default!;
+}
