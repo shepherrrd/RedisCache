@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 Console.WriteLine("Logs from your program will appear here!");
 
 // Use a different port to avoid conflicts
-int port = 6379; // Change to any available port number
+int port = 6380; // Change to any available port number
 TcpListener server = new TcpListener(IPAddress.Any, port);
 
 server.Start(); // wait for client
@@ -50,6 +50,9 @@ string[] PartitionRequest(string request) {
 
 string HandleParsing(string[] request) {
     string reply = "Nope";
+     for (int i = 0; i < request.Length; i++){
+        Console.WriteLine($"Request[{i}]: {request[i]}");
+     }
     switch (request[0].ToLower()) {
         case "ping":
             reply = "+PONG\r\n";
