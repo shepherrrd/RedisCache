@@ -9,24 +9,26 @@ Console.WriteLine("Logs from your program will appear here!");
 TcpListener server = new TcpListener(IPAddress.Any, 6379);
 
 server.Start(); // wait for client// wait for client
- while (true) {
-  Socket socket = await server.AcceptSocketAsync(); // wait for client
-  await HandleSocketAsync(socket);
+ int clientId = 1;
+while (true) {
+  Socket clientSocket = await server.AcceptSocketAsync(); 
+  HandleSocketConnection(clientSocket, clientId++);
 }
-async Task HandleSocketAsync(Socket socket) {
-  while (socket.Connected) {
-    byte[] requestData = new byte[socket.ReceiveBufferSize];
-    await socket.ReceiveAsync(requestData);
-    var request =  Encoding.UTF8.GetString(requestData);
-    var response = Encoding.UTF8.GetBytes("+PONG\r\n");
-    // switch (request) {
-    // case "PING":
-    //   response = Encoding.UTF8.GetBytes("PONG");
-    //   break;
-    // default:
-    //   response = Encoding.UTF8.GetBytes("-ERR unknown command\r\n");
-    //   break;
-    // }
-    await socket.SendAsync(response);
+static async void HandleSocketConnection(Socket clientSocket, int clientId) {
+  try {
+    while (true) {
+      byte[] databuffer = new byte[1024];
+      int bytesRead = await clientSocket.ReceiveAsync(databuffer);
+      string recivedMessage = Encoding.UTF8.GetString(databuffer, 0, bytesRead);
+      Console.WriteLine(
+          $"Recived Message: {recivedMessage}, clientId: {clientId}");
+      string responseString = "+PONG\r\n";
+      byte[] responseMessage = Encoding.UTF8.GetBytes(responseString);
+      await clientSocket.SendAsync(responseMessage);
+    }
+  } catch (Exception ex) {
+    throw new Exception($"Error Happened in this client {ex.Message}");
+  } finally {
+    clientSocket.Close();
   }
 }
