@@ -17,18 +17,38 @@ while (true) {
 static async void HandleSocketConnection(Socket clientSocket, int clientId) {
   try {
     while (true) {
-      byte[] databuffer = new byte[1024];
+      byte[] databuffer = new byte[clientSocket.ReceiveBufferSize];
       int bytesRead = await clientSocket.ReceiveAsync(databuffer);
+      if (bytesRead > 0) {
+       
       string recivedMessage = Encoding.UTF8.GetString(databuffer, 0, bytesRead);
       Console.WriteLine(
           $"Recived Message: {recivedMessage}, clientId: {clientId}");
-      string responseString = "+PONG\r\n";
-      byte[] responseMessage = Encoding.UTF8.GetBytes(responseString);
+      var data = recivedMessage.Split("\r\n");
+      if(data.Length > 0){
+        
+      byte[] responseMessage = Encoding.UTF8.GetBytes(HandleParsing(data));
       await clientSocket.SendAsync(responseMessage);
+      }
     }
+    }
+    
   } catch (Exception ex) {
     throw new Exception($"Error Happened in this client {ex.Message}");
   } finally {
     clientSocket.Close();
   }
+}
+
+static string HandleParsing(string[] request) {
+  string reply = "Nope";
+  switch (request[2].ToLower()) {
+  case "ping":
+    reply = "+PONG\r\n";
+    break;
+  case "echo":
+    reply = $"${request[4].Length}\r\n{request[4]}\r\n";
+    break;
+  }
+  return reply;
 }
