@@ -15,20 +15,3 @@ event loops, the Redis protocol and more.
 The entry point for your Redis implementation is in `src/Server.cs`. Study and
 uncomment the relevant code, and push your changes to pass the first stage:
 
-```sh
-git add .
-git commit -m "pass 1st stage" # any msg
-git push origin master
-```
-
-That's all!
-
-# Stage 2 & beyond
-
-Note: This section is for stages 2 and beyond.
-
-1. Ensure you have `dotnet (8.0)` installed locally
-1. Run `./spawn_redis_server.sh` to run your Redis server, which is implemented
-   in `src/Server.cs`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
