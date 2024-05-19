@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -10,11 +11,12 @@ TcpListener server = new TcpListener(IPAddress.Any, 6379);
 
 server.Start(); // wait for client// wait for client
  int clientId = 1;
+ var dict = new Dictionary<string, string>();
 while (true) {
   Socket clientSocket = await server.AcceptSocketAsync(); 
   HandleSocketConnection(clientSocket, clientId++);
 }
-static async void HandleSocketConnection(Socket clientSocket, int clientId) {
+ async void HandleSocketConnection(Socket clientSocket, int clientId) {
   try {
     while (true) {
       byte[] databuffer = new byte[clientSocket.ReceiveBufferSize];
@@ -40,7 +42,7 @@ static async void HandleSocketConnection(Socket clientSocket, int clientId) {
   }
 }
 
-static string HandleParsing(string[] request) {
+ string HandleParsing(string[] request) {
   string reply = "Nope";
   switch (request[2].ToLower()) {
   case "ping":
@@ -49,6 +51,18 @@ static string HandleParsing(string[] request) {
   case "echo":
     reply = $"${request[4].Length}\r\n{request[4]}\r\n";
     break;
+   case "set":
+    reply = "+OK\r\n";
+    break; 
+    case "get":
+    var res = request[4];
+    if(dict.ContainsKey(res)){
+      reply = $"${dict[res].Length}\r\n{dict[res]}\r\n";
+  }else{
+    reply = "$-1\r\n";
   }
-  return reply;
+    break;
+   
 }
+    return reply;
+ }
