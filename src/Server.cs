@@ -15,7 +15,7 @@ while (socket.Connected){
     byte[] buffer = new byte[socket.ReceiveBufferSize];
     await socket.ReceiveAsync(buffer);
     var command = Encoding.UTF8.GetString(buffer);
-    if (command == "PING\r\n"){
+   
        await  socket.SendAsync(pong);
-    }
+    
 }
