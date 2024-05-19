@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
 
-// Uncomment this block to pass the first stage
-TcpListener server = new TcpListener(IPAddress.Any, 6379);
+// Use a different port to avoid conflicts
+int port = 6380; // Change to any available port number
+TcpListener server = new TcpListener(IPAddress.Any, port);
 
 server.Start(); // wait for client
+Console.WriteLine($"Server started on port {port}");
 int clientId = 1;
 var dict = new ConcurrentDictionary<string, DataType>();
 
@@ -27,7 +29,7 @@ async void HandleSocketConnection(Socket clientSocket, int clientId) {
             if (bytesRead > 0) {
                 string receivedMessage = Encoding.UTF8.GetString(databuffer, 0, bytesRead);
                 Console.WriteLine($"Received Message: {receivedMessage}, clientId: {clientId}");
-                var data = receivedMessage.Split("\r\n");
+                var data = PartitionRequest(receivedMessage);
                 if (data.Length > 0) {
                     string responseMessage = HandleParsing(data);
                     await SendResponse(clientSocket, responseMessage);
@@ -41,38 +43,33 @@ async void HandleSocketConnection(Socket clientSocket, int clientId) {
     }
 }
 
+string[] PartitionRequest(string request) {
+    // Split the request by spaces and newlines
+    return request.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+}
+
 string HandleParsing(string[] request) {
-   foreach(var item in request){
-       Console.WriteLine(item);
-   }
     string reply = "Nope";
-    switch (request[2].ToLower()) {
+    switch (request[0].ToLower()) {
         case "ping":
             reply = "+PONG\r\n";
             break;
         case "echo":
-            reply = $"${request[4].Length}\r\n{request[4]}\r\n";
+            reply = $"${request[1].Length}\r\n{request[1]}\r\n";
             break;
-        case "set":         
-            Console.WriteLine($"Key: {request[4]}, Value: {request[6]}");
-                if (request.Length > 10 && request[10] != null && request[8] != null) {
-                if (request[10].Length > 0 && request[8].ToLower() == "px") {
-                    Console.WriteLine($"Key: {request[4]}, Value: {request[6]}, Expiry: {request[10]}");
-                    dict[request[4]] = new DataType { value = request[6], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[10])) };
-                    StartExpiryTask(request[4], int.Parse(request[10]));
-                    reply = "+OK\r\n";
-                    break;
-                }
+        case "set":
+            if (request.Length > 3 && request.Length > 5 && request[3].ToLower() == "px") {
+                Console.WriteLine($"Key: {request[1]}, Value: {request[2]}, Expiry: {request[4]}");
+                dict[request[1]] = new DataType { value = request[2], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[4])) };
+                StartExpiryTask(request[1], int.Parse(request[4]));
+                reply = "+OK\r\n";
+            } else if (request.Length > 2) {
+                dict[request[1]] = new DataType { value = request[2], expiryTime = DateTime.Now.AddSeconds(100000) };
+                reply = "+OK\r\n";
             }
-                Console.WriteLine($"Keysss: {request[4]}, Value: {request[6]},");
-
-             dict[request[4]] = new DataType { value = request[6], expiryTime = DateTime.Now.AddMilliseconds(100000) };
-                StartExpiryTask(request[4], 100000);
-
-                reply = "+OK\r\n";          
             break;
         case "get":
-            var key = request[4];
+            var key = request[1];
             if (dict.ContainsKey(key) && dict[key].expiryTime > DateTime.Now) {
                 reply = $"${dict[key].value.Length}\r\n{dict[key].value}\r\n";
             } else {
