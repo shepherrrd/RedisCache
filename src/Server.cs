@@ -56,6 +56,11 @@ while (true) {
     reply = $"${request[4].Length}\r\n{request[4]}\r\n";
     break;
    case "set":
+   if(request[6].ToLower() == "px"){
+    dict.Add(request[4], new DataType(){value = request[8], time = TimeSpan.FromMilliseconds(int.Parse(request[10]))});
+    reply = "+OK\r\n";
+    break;
+   }
    dict.Add(request[4], new DataType(){value = request[6], time = TimeSpan.FromSeconds(int.Parse(request[8]))});
     reply = "+OK\r\n";
     break; 
@@ -74,7 +79,8 @@ while (true) {
  
  async void SendResponse(Socket clientSocket, string response) {
   byte[] responseMessage = Encoding.UTF8.GetBytes(response);
-  await clientSocket.SendAsync(responseMessage);}
+  await clientSocket.SendAsync(responseMessage);
+  }
    void DeleteFromCache(){
     foreach(var key in dict.Keys){
         var now = DateTime.Now;
