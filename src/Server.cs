@@ -53,8 +53,8 @@ string HandleParsing(string[] request) {
         case "set":
             
                 Console.WriteLine($"Key: {request[4]}, Value: {request[8]}, Expiry: {request[10]}");
-                dict[request[4]] = new DataType { value = request[8], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[10])) };
-                StartExpiryTask(request[4], int.Parse(request[10]));
+                dict.TryAdd(request[6],new DataType { value = request[10], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[12])) });
+                StartExpiryTask(request[6], int.Parse(request[12]));
                 reply = "+OK\r\n";
             
             break;
