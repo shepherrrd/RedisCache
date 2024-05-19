@@ -55,10 +55,7 @@ string HandleParsing(string[] request) {
                 dict[request[4]] = new DataType { value = request[8], expiryTime = DateTime.Now.AddMilliseconds(int.Parse(request[10])) };
                 StartExpiryTask(request[4], int.Parse(request[10]));
                 reply = "+OK\r\n";
-            } else {
-                dict[request[4]] = new DataType { value = request[6], expiryTime = DateTime.Now.AddSeconds(100000) };
-                reply = "+OK\r\n";
-            }
+            } 
             break;
         case "get":
             var key = request[4];
